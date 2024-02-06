@@ -1,0 +1,34 @@
+## Copyright 2023-2024 Jefferson Amstutz
+## SPDX-License-Identifier: Apache-2.0
+
+cmake_minimum_required(VERSION 3.17)
+
+message(STATUS "CMake version: ${CMAKE_VERSION}")
+
+## CMake setup ##
+
+set(CMAKE_DISABLE_SOURCE_CHANGES ON)
+set(CMAKE_DISABLE_IN_SOURCE_BUILD ON)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+set(CMAKE_BUILD_TYPE_INIT Release)
+set(CMAKE_INSTALL_MESSAGE LAZY)
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+
+## Establish project ##
+
+project(wormhole LANGUAGES CXX)
+
+## Build Test App ##
+
+find_package(MPI REQUIRED)
+
+add_executable(wormhole_test wormhole_test.cpp)
+target_link_libraries(wormhole_test MPI::MPI_CXX)
