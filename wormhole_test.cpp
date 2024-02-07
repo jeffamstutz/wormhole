@@ -23,26 +23,27 @@ int main()
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 
-    printf("Hello from rank '%i' of '%i' ranks\n", rank, size);
-
     // Create Window //
 
     wormhole::RMAWindow<int> window;
     window.resize(rank == 0 ? size : 0);
-    window.fill_buffer(0);
+    std::fill(window.ptr(), window.ptr() + window.size(), 0);
 
     // Sync so the fill on rank 0 doesn't race with other node put() calls //
 
-    MPI_Barrier(MPI_COMM_WORLD);
+    window.fence();
 
-    // Send my rank to rank 0 //
+    // Send my rank to rank 0 in the right spot  //
 
     window.put(0, &rank, 1, rank);
 
-    // Get rank 0 size //
+    // Get first rank value from that rank //
 
     int remoteRank = -1;
     window.get(0, &remoteRank, 1);
+
+    // Sync again so all messaging is known to be complete //
+
     window.fence();
 
     // Print outputs //

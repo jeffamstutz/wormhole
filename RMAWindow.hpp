@@ -6,7 +6,6 @@
 // mpi
 #include <mpi.h>
 // std
-#include <algorithm>
 #include <cstdint>
 
 namespace wormhole {
@@ -23,15 +22,12 @@ struct RMAWindow
   void get(int rank, T *data, size_t size, size_t srcOffset = 0);
   void fence();
 
+  T *ptr();
   const T *data() const;
   size_t size() const;
 
-  // Fill local buffer with a value
-  void fill_buffer(T v);
-
  private:
   void detach();
-  T *ptr();
 
   MPI_Comm m_comm{};
   MPI_Win m_win{};
@@ -96,6 +92,12 @@ inline void RMAWindow<T>::fence()
 }
 
 template <typename T>
+inline T *RMAWindow<T>::ptr()
+{
+  return (T *)m_ptr;
+}
+
+template <typename T>
 inline const T *RMAWindow<T>::data() const
 {
   return (const T *)m_ptr;
@@ -108,12 +110,6 @@ inline size_t RMAWindow<T>::size() const
 }
 
 template <typename T>
-inline void RMAWindow<T>::fill_buffer(T v)
-{
-  std::fill(ptr(), ptr() + size(), v);
-}
-
-template <typename T>
 inline void RMAWindow<T>::detach()
 {
   if (m_win) {
@@ -121,12 +117,6 @@ inline void RMAWindow<T>::detach()
     m_ptr = nullptr;
     m_size = 0;
   }
-}
-
-template <typename T>
-inline T *RMAWindow<T>::ptr()
-{
-  return (T *)m_ptr;
 }
 
 } // namespace wormhole
